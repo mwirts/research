@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analise FIP-IE — Oikos</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<link rel="stylesheet" href="/css/oikos.css">
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-text">
+      <h1>Analise <span>FIP-IE</span></h1>
+      <p>Comite de Investimentos</p>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <p style="font-size:10px;opacity:.6">Fundos de Investimento em Participacoes em Infraestrutura</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="toggleTheme()" title="Alternar tema">&#9681;</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Main Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Visao Geral</button>
+    <button class="tab" data-tab="individual">Analise Individual</button>
+    <button class="tab" data-tab="portfolio">Carteira</button>
+    <button class="tab" data-tab="comparative">Comparativo</button>
+    <button class="tab" data-tab="presentation">Apresentacao</button>
+  </div>
+
+  <!-- Tab: Visao Geral -->
+  <div id="overview" class="tab-content active">
+    <div id="kpi-grid" class="kpi-grid">
+      <div class="loading" style="grid-column:1/-1">Carregando...</div>
+    </div>
+    <div class="card">
+      <h2>Fundos Monitorados</h2>
+      <div class="sheet-wrap">
+        <table class="sheet">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Fundo</th>
+              <th>Gestora</th>
+              <th>VP/Cota</th>
+              <th>Preco Mkt</th>
+              <th>Desconto</th>
+              <th>TIR (IPCA+)</th>
+              <th>DY (LTM)</th>
+              <th>Div. Acum.</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody id="funds-table-body">
+            <tr><td colspan="10" class="center muted">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>TIR Implicita (IPCA+ %)</h3>
+        <canvas id="chart-tir-ranking" height="280"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Dividend Yield LTM (%)</h3>
+        <canvas id="chart-dy-ranking" height="280"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Analise Individual -->
+  <div id="individual" class="tab-content">
+    <div class="fund-pills" id="fund-pills"></div>
+    <div id="fund-detail-content">
+      <div class="empty">Selecione um fundo na tabela ou nos botoes acima.</div>
+    </div>
+  </div>
+
+  <!-- Tab: Carteira -->
+  <div id="portfolio" class="tab-content">
+    <div class="fund-pills" id="portfolio-pills"></div>
+    <div id="portfolio-content">
+      <div class="empty">Selecione um fundo para ver a carteira de ativos.</div>
+    </div>
+  </div>
+
+  <!-- Tab: Comparativo -->
+  <div id="comparative" class="tab-content">
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3>Ranking DY (LTM %)</h3>
+        <canvas id="chart-ranking-dy" height="220"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Ranking Desconto (%)</h3>
+        <canvas id="chart-ranking-discount" height="220"></canvas>
+      </div>
+      <div class="chart-card full-width">
+        <h3>Dividendos Acumulados (R$/cota)</h3>
+        <canvas id="chart-ranking-divs" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Apresentacao -->
+  <div id="presentation" class="tab-content">
+    <div class="card" style="margin-bottom:24px">
+      <h2>Apresentacao para Comite</h2>
+      <p class="text-muted" style="margin-bottom:16px">
+        Slides gerados automaticamente a partir dos dados mais recentes.
+      </p>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-primary" onclick="startPresentation()">Iniciar Apresentacao</button>
+        <button class="btn btn-secondary" onclick="window.print()">Exportar PDF</button>
+      </div>
+    </div>
+    <div id="slides-preview"></div>
+  </div>
+
+</div>
+
+<!-- Fullscreen slide overlay -->
+<div id="slide-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);">
+  <div id="slide-container" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:40px;"></div>
+  <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;">
+    <button class="btn btn-secondary" onclick="prevSlide()" style="padding:6px 14px">&#9664;</button>
+    <span id="slide-counter" style="color:var(--text-muted);font-size:12px;min-width:60px;text-align:center"></span>
+    <button class="btn btn-secondary" onclick="nextSlide()" style="padding:6px 14px">&#9654;</button>
+    <button class="btn btn-secondary" onclick="exitPresentation()" style="margin-left:16px;padding:6px 14px">ESC</button>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/portfolio.js"></script>
+<script src="/js/slides.js"></script>
+
+</body>
+</html>

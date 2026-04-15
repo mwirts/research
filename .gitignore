@@ -2,8 +2,12 @@
 data/raw/**/*.pdf
 data/raw/**/*.csv
 data/raw/**/*.xlsx
+data/raw/**/*.ZIP
 data/processed/**/*.csv
 data/processed/**/*.parquet
+data/processed/**/*.db
+data/processed/**/*.ddb
+data/processed/extracted/
 
 # Keep directory structure
 !data/raw/.gitkeep
