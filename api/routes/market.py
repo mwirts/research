@@ -221,3 +221,36 @@ def get_tir(
         }
     finally:
         conn.close()
+
+
+@router.get("/market/tir/{ticker}/range")
+def get_tir_range(ticker: str):
+    """Get cota min/max range + current close for the TIR calculator slider."""
+    ticker = ticker.upper()
+    conn = get_market_db()
+    try:
+        rng = conn.execute("""
+            SELECT MIN(cota_min), MAX(cota_max)
+            FROM tir_breakpoints
+            WHERE ticker = ? AND scraped_at = (
+                SELECT MAX(scraped_at) FROM tir_breakpoints WHERE ticker = ?
+            )
+        """, [ticker, ticker]).fetchone()
+
+        if not rng or rng[0] is None:
+            raise HTTPException(404, f"No TIR breakpoints for {ticker}")
+
+        current = conn.execute("""
+            SELECT close, trade_date FROM daily_prices
+            WHERE ticker = ? ORDER BY trade_date DESC LIMIT 1
+        """, [ticker]).fetchone()
+
+        return {
+            "ticker": ticker,
+            "cota_min": round(rng[0], 2),
+            "cota_max": round(rng[1], 2),
+            "current_cota": round(current[0], 2) if current else None,
+            "current_date": str(current[1]) if current else None,
+        }
+    finally:
+        conn.close()

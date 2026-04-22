@@ -217,8 +217,24 @@ function renderFundDetail(data) {
         <canvas id="chart-distributions" height="280"></canvas>
       </div>
       <div class="chart-card">
-        <h3>Volume Financeiro Mensal (R$)</h3>
+        <h3>Volume Financeiro Medio Diario (R$)</h3>
         <canvas id="chart-volume" height="280"></canvas>
+      </div>
+      <div class="chart-card full-width tir-calc-card" id="tir-calc-card" style="display:none">
+        <h3>Calculadora de TIR Implicita</h3>
+        <div class="tir-calc">
+          <div class="tir-calc-values">
+            <div class="tir-calc-metric"><span class="muted">Cota</span><strong id="tir-calc-cota">-</strong></div>
+            <div class="tir-calc-metric"><span class="muted">TIR (IPCA+)</span><strong id="tir-calc-ipca">-</strong></div>
+            <div class="tir-calc-metric"><span class="muted">Gross-up</span><strong id="tir-calc-gross">-</strong></div>
+          </div>
+          <input type="range" id="tir-calc-slider" />
+          <div class="tir-calc-range">
+            <span id="tir-calc-min" class="muted">-</span>
+            <span id="tir-calc-max" class="muted">-</span>
+          </div>
+          <div class="muted tir-calc-note" id="tir-calc-note"></div>
+        </div>
       </div>
     </div>
   `;
@@ -229,7 +245,7 @@ function renderFundDetail(data) {
     const sampled = prices.filter((_, i) => i % step === 0 || i === prices.length - 1);
 
     createLineChart('chart-price-history',
-      sampled.map(p => p.date),
+      sampled.map(p => formatRefDate(p.date)),
       [{
         label: 'Fechamento (R$)',
         data: sampled.map(p => p.close),
@@ -256,7 +272,7 @@ function renderFundDetail(data) {
   // --- Distributions chart ---
   if (divs.length) {
     createBarChart('chart-distributions',
-      divs.map(d => d.ex_date),
+      divs.map(d => formatRefDate(d.ex_date)),
       [{
         data: divs.map(d => d.amount),
         backgroundColor: fundColor + '70',
@@ -304,6 +320,58 @@ function renderFundDetail(data) {
         },
       }
     );
+  }
+
+  // --- TIR Calculator ---
+  setupTirCalculator(fund.ticker);
+}
+
+// Set up the TIR calculator widget for funds that have breakpoints.
+// Silently hides the card for funds without public TIR data (AZIN, BRZP).
+async function setupTirCalculator(ticker) {
+  const card = document.getElementById('tir-calc-card');
+  if (!card) return;
+  try {
+    const range = await fetchAPI(`market/tir/${ticker}/range`);
+    card.style.display = '';
+
+    const slider = document.getElementById('tir-calc-slider');
+    const cotaEl = document.getElementById('tir-calc-cota');
+    const ipcaEl = document.getElementById('tir-calc-ipca');
+    const grossEl = document.getElementById('tir-calc-gross');
+    const noteEl = document.getElementById('tir-calc-note');
+
+    slider.min = range.cota_min;
+    slider.max = range.cota_max;
+    slider.step = 0.01;
+    slider.value = range.current_cota ?? range.cota_min;
+    document.getElementById('tir-calc-min').textContent = formatBRL(range.cota_min);
+    document.getElementById('tir-calc-max').textContent = formatBRL(range.cota_max);
+    noteEl.textContent = range.current_cota
+      ? `Preco atual: ${formatBRL(range.current_cota)} (${range.current_date})`
+      : '';
+
+    let timer = null;
+    const update = async () => {
+      const cota = parseFloat(slider.value);
+      cotaEl.textContent = formatBRL(cota);
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        try {
+          const r = await fetchAPI(`market/tir/${ticker}?cota=${cota}`);
+          ipcaEl.textContent = r.ipca_plus_pct != null
+            ? `IPCA+ ${r.ipca_plus_pct.toFixed(2).replace('.', ',')}%`
+            : '-';
+          grossEl.textContent = r.gross_up_pct != null
+            ? `${r.gross_up_pct.toFixed(2).replace('.', ',')}%`
+            : '-';
+        } catch (_) { /* ignore */ }
+      }, 40);
+    };
+    slider.addEventListener('input', update);
+    update();
+  } catch (_) {
+    card.style.display = 'none';
   }
 }
 

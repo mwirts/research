@@ -111,6 +111,18 @@ body{font-family:'Aeonik','Inter','DM Sans','Segoe UI',system-ui,sans-serif;back
 .chart-card canvas{max-height:350px}
 .chart-card.full-width{grid-column:1/-1}
 
+/* --- TIR Calculator --- */
+.tir-calc{display:flex;flex-direction:column;gap:14px;padding:8px 4px}
+.tir-calc-values{display:flex;justify-content:space-around;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.tir-calc-metric{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tir-calc-metric span{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted)}
+.tir-calc-metric strong{font-size:22px;font-weight:500;font-family:'Aeonik','Consolas',monospace;color:var(--blue-200)}
+.tir-calc input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:3px;outline:none;cursor:pointer}
+.tir-calc input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--green-500);border:2px solid var(--card);cursor:pointer;box-shadow:0 0 0 1px var(--green-700)}
+.tir-calc input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--green-500);border:2px solid var(--card);cursor:pointer;box-shadow:0 0 0 1px var(--green-700)}
+.tir-calc-range{display:flex;justify-content:space-between;font-size:11px;font-family:'Aeonik','Consolas',monospace}
+.tir-calc-note{font-size:11px;text-align:center;margin-top:4px}
+
 /* --- Buttons --- */
 .btn{padding:8px 20px;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:1px;font-family:inherit}
 .btn-primary{background:linear-gradient(135deg,var(--green-700),var(--green-900));color:#fff;box-shadow:0 2px 8px rgba(0,141,68,.3)}

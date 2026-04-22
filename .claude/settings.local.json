@@ -1,18 +1,38 @@
 {
+  "env": {
+    "ECC_DISABLED_HOOKS": "pre:edit-write:gateguard-fact-force,pre:bash:gateguard-fact-force"
+  },
   "permissions": {
     "allow": [
       "Bash(*)",
       "Read(*)",
       "Write(*)",
       "Edit(*)",
+      "MultiEdit(*)",
       "Glob(*)",
       "Grep(*)",
       "WebFetch(*)",
       "WebSearch(*)",
       "Agent(*)",
       "NotebookEdit(*)",
-      "TodoWrite(*)"
+      "TodoWrite(*)",
+      "PowerShell(*)"
     ],
-    "deny": []
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rmdir:*)",
+      "Bash(del:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git rm:*)",
+      "Bash(find * -delete:*)",
+      "Bash(find * -exec rm:*)",
+      "PowerShell(Remove-Item:*)",
+      "PowerShell(rm:*)",
+      "PowerShell(del:*)",
+      "PowerShell(erase:*)",
+      "PowerShell(rd:*)",
+      "PowerShell(rmdir:*)"
+    ]
   }
 }

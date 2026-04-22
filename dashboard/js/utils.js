@@ -76,7 +76,7 @@ function formatRefDate(dateStr) {
   if (!dateStr) return '-';
   const [year, month] = dateStr.split('-');
   const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  return `${months[parseInt(month) - 1]}/${year}`;
+  return `${months[parseInt(month) - 1]}/${year.slice(-2)}`;
 }
 
 // --- CSS class for positive/negative ---
